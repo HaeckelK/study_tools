@@ -1,5 +1,6 @@
 import argparse
 import csv
+import os
 
 
 def main():
@@ -24,6 +25,8 @@ def main():
         default=1,
     )
     parser.add_argument("--tags", type=str, nargs="+", help="Tags to add to created cards.")
+    parser.add_argument("--path", type=str, help="Path where files should be saved.", default="data")
+    parser.add_argument("--overwrite", action='store_true', help="Overwrite batch file if already exists.")
     args = parser.parse_args()
 
     batch_number = args.batch_number
@@ -32,6 +35,9 @@ def main():
     chapter = args.chapter
     topic = args.topic
     sub_topic = args.sub_topic
+    path = args.path
+    overwrite = args.overwrite
+
     tags = topic
     if sub_topic:
         tags += " " + sub_topic
@@ -41,7 +47,14 @@ def main():
         pass
 
     num_questions = args.num
-    with open("dummy_name.csv", "w", newline="") as f:
+
+    filename = os.path.join(path, f"batch_{batch_number}.csv")
+
+    if overwrite is False and os.path.exists(filename):
+        print("Filename already exists for this batch, aborting.")
+        return
+
+    with open(filename, "w", newline="") as f:
         writer = csv.writer(f)
         for i in range(num_questions):
             question_number = i + start_number
